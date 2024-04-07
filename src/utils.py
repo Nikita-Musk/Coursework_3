@@ -1,11 +1,11 @@
 import json
 
 
-def load_data():
+def load_data(file_path):
     """
     Выводит в список информацию о транзакциях файла "operations.json"
     """
-    with open("operations.json") as file:
+    with open(file_path, 'r') as file:
         operations = json.load(file)
         return operations
 
@@ -61,6 +61,3 @@ def format_operations(operations):
     currency = operations["operationAmount"]["currency"]["name"]
 
     return f"{date} {description}\n{sender} {card_number} -> {receiver} {account_number}\n{amount} {currency}"
-
-
-
