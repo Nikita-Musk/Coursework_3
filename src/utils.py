@@ -35,29 +35,46 @@ def format_operations(operations):
     """
     Форматирует информацию о банковской операции в удобночитаемый вид
     """
-
-    # Проверка на наличие ключей "date", "description" и "operationAmount"
-    # if "date" not in operations or "description" not in operations or "operationAmount" not in operations:
-    #     raise ValueError("Некорректный формат данных операции")
-
     # Получение корректной даты операции
     date = get_correct_date(operations["date"].split("T")[0])
 
     # Получение описания операции
     description = operations["description"]
 
-    # Получение информации об отправителе
+    # Получение информации об отправителе, обработка ошибки при отсутвии данных
     from_info = operations.get("from", "").split()
-    sender = ' '.join(from_info[0:-1])
-    card_number = mask_card_number(from_info[-1])
+    sender = ' '.join(from_info[0:-1]) if len(from_info) > 1 else 'Номер карты отсутсвует'
+    card_number = mask_card_number(from_info[-1]) if from_info else ''
 
-    # Получение информации о получателе
+    # Получение информации о получателе, обработка ошибки при отсутвии данных
     to_info = operations.get("to", "").split()
-    receiver = ' '.join(to_info[0:-1])
-    account_number = mask_account_number(to_info[-1])
+    receiver = ' '.join(to_info[0:-1]) if len(to_info) > 1 else 'Номер счета отсутсвует'
+    account_number = mask_account_number(to_info[-1]) if to_info else ''
 
     # Получение суммы и валюты операции
     amount = operations["operationAmount"]["amount"]
     currency = operations["operationAmount"]["currency"]["name"]
 
     return f"{date} {description}\n{sender} {card_number} -> {receiver} {account_number}\n{amount} {currency}"
+
+
+def prepare_operations(operations):
+    """
+    Форматирует информацию о 5 последних выполненных операциях.
+    """
+    executed_operations = []
+
+    # Проверяем наличие ключа 'state' и выполнения операции
+    for operation in operations:
+        if "state" in operation and operation["state"] == "EXECUTED":
+            executed_operations.append(operation)
+
+    # Сортируем операции по дате
+    sorted_operations = sorted(executed_operations, key=lambda x: x["date"], reverse=True)
+
+    # Получаем 5 последних операций
+    last_operations = sorted_operations[:5]
+
+    # Форматируем операции по специальному формату функции format_operations()
+    formatted_operations = [format_operations(operation) for operation in last_operations]
+    return '\n\n'.join(formatted_operations)
