@@ -1,6 +1,4 @@
-import os
 from utils import load_data, prepare_operations
-from config import ROOT_DIR
 
 
 def main():
@@ -10,8 +8,7 @@ def main():
     Затем данные обрабатываются функцией prepare_operations,
     чтобы получить отформатированную информацию о последних выполненных операциях.
     """
-    DATA_PATH = os.path.join(ROOT_DIR, 'src', 'operations.json')
-    operations = load_data(DATA_PATH)
+    operations = load_data("operations.json")
     print(prepare_operations(operations))
 
 
